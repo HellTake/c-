@@ -11,12 +11,12 @@ int lpfnRegister;
 lpfnRegister=(int)GetProcAddress(hModule,"MessageBoxA");
 if (!lpfnRegister)
 {
-MessageBox(0,TEXT("ÎŞ·¨»ñÈ¡user32¿âµØÖ·"),0,0);
+MessageBox(0,TEXT("æ— æ³•è·å–user32åº“åœ°å€"),0,0);
 }
 //printf("%p\n",lpfnRegister);
 return lpfnRegister;
 }else{
-	MessageBox(0,TEXT("ÎŞ·¨»ñÈ¡MessageBoxµØÖ·"),0,0);
+	MessageBox(0,TEXT("æ— æ³•è·å–MessageBoxåœ°å€"),0,0);
 }
 }
 
@@ -27,27 +27,27 @@ int* OpenFile()
     int* StrBuffer = NULL;
     int Num = 0;
     char addr[100];
-    //´ò¿ªÎÄ¼ş
-//    printf("ÊäÈëÒªĞŞ¸ÄµÄÎÄ¼ş:");
+    //æ‰“å¼€æ–‡ä»¶
+//    printf("è¾“å…¥è¦ä¿®æ”¹çš„æ–‡ä»¶:");
 //    scanf("%s",addr);
     if ((PointToFile = fopen("F:\\study\\pehead\\WinHex 20.6 SR-1_x86_x64.exe","rb+")) == NULL) {
-        printf("´ò¿ªÎÄ¼şÊ§°Ü!");
+        printf("æ‰“å¼€æ–‡ä»¶å¤±è´¥!");
         exit(1);
     }
-	printf("´ò¿ªÎÄ¼ş³É¹¦!\n");
-    //»ñÈ¡ÎÄ¼ş´óĞ¡
-    fseek(PointToFile,0,2);//ÉèÖÃÎÄ¼şÖ¸ÕëÖ¸ÏòÎÄ¼şÎ² 
-    FileSize = ftell(PointToFile);//»ñÈ¡ÎÄ¼şÖ¸Õëµ±Ç°Î»ÖÃÏà¶ÔÓÚÎÄ¼şÊ×µÄÆ«ÒÆ×Ö½ÚÊı
-    //ÖØ¶¨Î»Ö¸Õë
+	printf("æ‰“å¼€æ–‡ä»¶æˆåŠŸ!\n");
+    //è·å–æ–‡ä»¶å¤§å°
+    fseek(PointToFile,0,2);//è®¾ç½®æ–‡ä»¶æŒ‡é’ˆæŒ‡å‘æ–‡ä»¶å°¾ 
+    FileSize = ftell(PointToFile);//è·å–æ–‡ä»¶æŒ‡é’ˆå½“å‰ä½ç½®ç›¸å¯¹äºæ–‡ä»¶é¦–çš„åç§»å­—èŠ‚æ•°
+    //é‡å®šä½æŒ‡é’ˆ
     fseek(PointToFile,0,0);
-    StrBuffer = (int*)(malloc(FileSize));//ÉêÇëÒ»¸öÄÚ´æÓÃÀ´´æ·Å¶ÁÈ¡µÄÊı¾İ
+    StrBuffer = (int*)(malloc(FileSize));//ç”³è¯·ä¸€ä¸ªå†…å­˜ç”¨æ¥å­˜æ”¾è¯»å–çš„æ•°æ®
     fread(StrBuffer,FileSize,1,PointToFile);
     int stdpe=0+*(unsigned short*)((unsigned char*)StrBuffer+0x3c);
     int SizeOfOptionHeader=*(unsigned short*)((int)StrBuffer+stdpe+0x14);
     int choicepe=stdpe+0x18;
     int section=choicepe+SizeOfOptionHeader;
     int EmptySectionEnd=*(unsigned int*)((unsigned char*)StrBuffer+section+0x10);
-    printf("¿Õ°×¶ÎÆğÊ¼Î»ÖÃ:%x\n",EmptySectionEnd); 
+    printf("ç©ºç™½æ®µèµ·å§‹ä½ç½®:%x\n",EmptySectionEnd); 
     unsigned char* EmptyAddrEnd=(unsigned char*)((unsigned char*)StrBuffer+EmptySectionEnd+0xfff);
     int i=1;
     while(!*EmptyAddrEnd){
@@ -55,37 +55,37 @@ int* OpenFile()
     	i++;
     }
     i=i/16*16;
-    printf("¿Õ°×½Ú¿ÉÓÃ´óĞ¡:%x\n",i);
+    printf("ç©ºç™½èŠ‚å¯ç”¨å¤§å°:%x\n",i);
     int CodeStart=EmptySectionEnd+0x1000-i;
-    printf("×¢Èë´úÂëÎ»ÖÃ:%x\n",CodeStart);
+    printf("æ³¨å…¥ä»£ç ä½ç½®:%x\n",CodeStart);
     unsigned int* OEP=(unsigned int*)((unsigned char*)StrBuffer+*(unsigned short*)((unsigned char*)StrBuffer+0x3c)+0x18+0x10);
     if(*OEP==CodeStart-0x20){
-    	printf("³ÌĞòÒÑ±»ĞŞ¸Ä,ÎŞĞòÖØ¸´ĞŞ¸Ä");
+    	printf("ç¨‹åºå·²è¢«ä¿®æ”¹,æ— åºé‡å¤ä¿®æ”¹");
     	fclose(PointToFile);
     	return StrBuffer;
 	}
     unsigned int addr1=*OEP-CodeStart-18;
-    unsigned int *p1=&addr1;//ĞèÒªµÄµÚÒ»¸öÖµ£¬³ÌĞòµÄÆğÊ¼µØÖ·Ïà¶ÔÓÚ×¢Èë´úÂë¶ÎµÄ½áÊøÎ»ÖÃµÄÆ«ÒÆ 
+    unsigned int *p1=&addr1;//éœ€è¦çš„ç¬¬ä¸€ä¸ªå€¼ï¼Œç¨‹åºçš„èµ·å§‹åœ°å€ç›¸å¯¹äºæ³¨å…¥ä»£ç æ®µçš„ç»“æŸä½ç½®çš„åç§» 
     int *WrightPoint=&CodeStart;
     int msgbox=getfunaddr();
     unsigned int addr2=msgbox-0x400000-CodeStart-0xd;
-    unsigned int *p2=&addr2;//ĞèÒªµÄµÚ¶ş¸öÖµ£¬msgboxµÄÆğÊ¼µØÖ·Ïà¶ÔÓÚµ÷ÓÃ´¦Æ«ÒÆ 
-    fseek(PointToFile,choicepe+0x10,0);//×¢ÈëÎ»ÖÃ1£¬¸Ä±äÎÄ¼şOEP 
+    unsigned int *p2=&addr2;//éœ€è¦çš„ç¬¬äºŒä¸ªå€¼ï¼Œmsgboxçš„èµ·å§‹åœ°å€ç›¸å¯¹äºè°ƒç”¨å¤„åç§» 
+    fseek(PointToFile,choicepe+0x10,0);//æ³¨å…¥ä½ç½®1ï¼Œæ”¹å˜æ–‡ä»¶OEP 
     fprintf(PointToFile,"%c%c%c%c",*((char*)WrightPoint),*((char*)WrightPoint+1),*((char*)WrightPoint+2),*((char*)WrightPoint+3));
-    printf("OEPĞŞ¸Ä³É¹¦!\n");
-    fseek(PointToFile,CodeStart,0);//×¢ÈëÎ»ÖÃ 2£¬Ïò¿Õ°×¶ÎĞ´Èë»úÆ÷Âë 
-    fprintf(PointToFile,"%c%c%c%c%c%c%c%c",0x6a,0x00,0x6a,0x00,0x6a,0x00,0x6a,0x00);//Ğ´ÈëµÄ»úÆ÷Âë,²ÎÊıÈëÕ» 
+    printf("OEPä¿®æ”¹æˆåŠŸ!\n");
+    fseek(PointToFile,CodeStart,0);//æ³¨å…¥ä½ç½® 2ï¼Œå‘ç©ºç™½æ®µå†™å…¥æœºå™¨ç  
+    fprintf(PointToFile,"%c%c%c%c%c%c%c%c",0x6a,0x00,0x6a,0x00,0x6a,0x00,0x6a,0x00);//å†™å…¥çš„æœºå™¨ç ,å‚æ•°å…¥æ ˆ 
     fseek(PointToFile,CodeStart+8,0);
-    fprintf(PointToFile,"%c",0xe8);//callÖ¸Áî 
+    fprintf(PointToFile,"%c",0xe8);//callæŒ‡ä»¤ 
     fseek(PointToFile,CodeStart+9,0);
     fprintf(PointToFile,"%c%c%c%c",*(unsigned char*)p2,*((unsigned char*)p2+1),*((unsigned char*)p2+2),*((unsigned char*)p2+3));
     fseek(PointToFile,CodeStart+13,0);
-    fprintf(PointToFile,"%c",0xe9);//jmpÖ¸Áî 
+    fprintf(PointToFile,"%c",0xe9);//jmpæŒ‡ä»¤ 
     fseek(PointToFile,CodeStart+14,0);
     fprintf(PointToFile,"%c%c%c%c",*(unsigned char*)p1,*((unsigned char*)p1+1),*((unsigned char*)p1+2),*((unsigned char*)p1+3));
-    printf("»úÆ÷Âë×¢ÈëÍê³É!\n");
+    printf("æœºå™¨ç æ³¨å…¥å®Œæˆ!\n");
     fclose(PointToFile);
-    //½«»º³åÇøÄÚµÄÎÄ¼şÄÚÈİµÄµØÖ··µ»Øµ½µ÷ÓÃº¯ÊıµÄµØ·½
+    //å°†ç¼“å†²åŒºå†…çš„æ–‡ä»¶å†…å®¹çš„åœ°å€è¿”å›åˆ°è°ƒç”¨å‡½æ•°çš„åœ°æ–¹
     return StrBuffer;
 }
 
@@ -93,39 +93,39 @@ int* FileSizes = OpenFile();
 
 int PrintfNtHeaders()
 {
-    //ÎÄ¼şÖ¸Õë
+    //æ–‡ä»¶æŒ‡é’ˆ
     unsigned short* PointBuffer = (unsigned short*)FileSizes;
     unsigned short* pBuffer = (unsigned short*)PointBuffer;
     unsigned char* pcBuffer = (unsigned char*)PointBuffer;
 
-//    //ÅĞ¶ÏMZºÍPEµÄ±êÖ¾
+//    //åˆ¤æ–­MZå’ŒPEçš„æ ‡å¿—
 //    unsigned short Cmp1 = 0x5A4D;
 //    unsigned int Cmp2 = 0x4550;
 //
-//    //ÅĞ¶ÏÎÄ¼şÊÇ·ñ¶ÁÈ¡³É¹¦
+//    //åˆ¤æ–­æ–‡ä»¶æ˜¯å¦è¯»å–æˆåŠŸ
 //    if(!PointBuffer)
 //    {
-//        printf("ÎÄ¼ş¶ÁÈ¡Ê§°Ü£¡");
+//        printf("æ–‡ä»¶è¯»å–å¤±è´¥ï¼");
 //        free(PointBuffer);
 //        return 0;
 //    }
 //
-//    //ÅĞ¶ÏÊÇ·ñÎªMZ±êÖ¾
+//    //åˆ¤æ–­æ˜¯å¦ä¸ºMZæ ‡å¿—
 //    if (*pBuffer != Cmp1)
 //    {
-//        printf("²»ÊÇÓĞĞ§MZ±êÖ¾£¡");
+//        printf("ä¸æ˜¯æœ‰æ•ˆMZæ ‡å¿—ï¼");
 //        printf("%X\n",*pBuffer);
 //        free(PointBuffer);
 //        return 0;
 //    }
-//    printf("*********´òÓ¡DOSÍ·*********\n");
+//    printf("*********æ‰“å°DOSå¤´*********\n");
 //    printf("e_magic:			%X\n",*(pBuffer));
 //    printf("e_ifanew:			%08X\n",*((unsigned short*)((unsigned char*)PointBuffer+0x3c)));
-//    //ÅĞ¶ÏÊÇ·ñÎªPE±êÖ¾
+//    //åˆ¤æ–­æ˜¯å¦ä¸ºPEæ ‡å¿—
 //    unsigned char* sdpe=((unsigned char*)PointBuffer+*(unsigned short*)((unsigned char*)PointBuffer+0x3c));
 //    if (*(unsigned short*)sdpe!= Cmp2)
 //    {
-//        printf("²»ÊÇÓĞĞ§µÄPE±êÖ¾£¡");
+//        printf("ä¸æ˜¯æœ‰æ•ˆçš„PEæ ‡å¿—ï¼");
 //        printf("%X\n",*sdpe);
 //        free(PointBuffer);
 //        return 0;
@@ -133,8 +133,8 @@ int PrintfNtHeaders()
 //	
 //	unsigned char* choicepe=(unsigned char*)(sdpe+0x18);
 //	*(unsigned int*)(choicepe+0x10)=0x1caa0;
-//    printf("*********´òÓ¡±ê×¼PEÎÄ¼şÍ·*********\n");
-//    printf("PE±êÖ¾:				%04X\n",*(unsigned short*)sdpe);
+//    printf("*********æ‰“å°æ ‡å‡†PEæ–‡ä»¶å¤´*********\n");
+//    printf("PEæ ‡å¿—:				%04X\n",*(unsigned short*)sdpe);
 //    printf("Machine:			%04X\n",*(unsigned short*)(sdpe+0x4));
 //    printf("NumberOfSection:		%04X\n",*(unsigned short*)(sdpe+0x6));
 //    printf("TimeDateStamp:			%08X\n",*(unsigned int*)(sdpe+0x8));
@@ -143,7 +143,7 @@ int PrintfNtHeaders()
 //    printf("SizeOfOptionalHeader:		%04X\n",*(unsigned short*)(sdpe+0x14));
 //    printf("Chrarcteristics:		%04X\n",*(unsigned short*)(sdpe+0x16));
 	
-//    printf("*********´òÓ¡±ê×¼¿ÉÑ¡PEÍ·*********\n");
+//    printf("*********æ‰“å°æ ‡å‡†å¯é€‰PEå¤´*********\n");
 //
 //    printf("Magic:				%04X\n", *(unsigned short*)(choicepe));
 //    printf("MajorLinkerVersion:		%02X\n", *(unsigned char*)(choicepe+0x2));
