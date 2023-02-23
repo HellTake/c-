@@ -12,17 +12,23 @@
 #define STR_OFFSET 0x15
 #define MESSAGE_BOX_OFFSET 0xc
 #define JMP_TO_HOME 0x11
+
+#define addr 0,0,0,0
+#define Push1 0x6A
+#define Push4 0x68
+#define Call 0xE8
+#define Jmp 0xE9
+#define hello 0xC4,0xE3,0xBA,0xC3
 #define debug 1
 
 BYTE ShellCode[] =
 {
-    0x6A,0x00,0x6A,0x00,0x68,0x00,0x00,0x00,0x00,0x6A,0x00, //MessageBox push 0的硬编码
-    0xE8,00,00,00,00,  // call汇编指令E8和后面待填充的硬编码
-    0xE9,00,00,00,00,   // jmp汇编指令E9和后面待填充的硬编码
-    0xC4,0xE3,0xBA,0xC3
+    Push1,0,Push1,0,Push4,addr,Push1,0, //MessageBox push 0的硬编码
+    Call,addr,  // call汇编指令E8和后面待填充的硬编码
+    Jmp,addr,   // jmp汇编指令E9和后面待填充的硬编码
+    hello
 };
 char name[50];
-
 
 class File_Control
 {
@@ -54,7 +60,7 @@ public:
     void getfunaddr(); // 获取MessageBoxA地址
     void output_error(const TCHAR* error_message);
     void read_file();
-    void write_file(int* buffer);
+    void write_file();
     void inject();
 };
 //类方法声明
@@ -135,7 +141,7 @@ void File_Control::read_file()
     }
     fclose(fp);
 }
-void File_Control::write_file(int* buffer)
+void File_Control::write_file()
 {
     FILE* fp;				  // 文件指针
     if ((fp = fopen(FileName, "wb")) == NULL)
@@ -143,7 +149,7 @@ void File_Control::write_file(int* buffer)
         MessageBox(0, TEXT("文件打开失败！"), 0, 0);
         exit(1);
     }
-    if (fwrite(buffer, FileSize, 1, fp) != 1)
+    if (fwrite(StrBuffer, FileSize, 1, fp) != 1)
     {
         MessageBox(0, TEXT("文件写入失败！"), 0, 0);
         fclose(fp);
@@ -184,7 +190,7 @@ void File_Control::inject(){
     memcpy(OEP + MESSAGE_BOX_OFFSET,&call_msgbox,4);
     memcpy(OEP + JMP_TO_HOME,&jmp_to_home,4);
     if(!debug)
-        write_file(StrBuffer);
+        write_file();
     MessageBox(0, TEXT("注入完成！"), TEXT("成功"), 0);
 }
 //主函数
@@ -195,7 +201,6 @@ int main(int argc, char* argv[])
     if (debug)
     {
         file.init("base.exe");
-        file.read_file();
     }
     else
     {
