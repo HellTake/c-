@@ -19,11 +19,14 @@
 #define Call 0xE8
 #define Jmp 0xE9
 #define hello 0xC4,0xE3,0xBA,0xC3
-#define debug 1
+#define debug 0
 
 BYTE ShellCode[] =
 {
-    Push1,0,Push1,0,Push4,addr,Push1,0, //MessageBox push 0的硬编码
+    Push1,0,
+    Push1,0,
+    Push4,addr,
+    Push1,0, //MessageBox push 0的硬编码
     Call,addr,  // call汇编指令E8和后面待填充的硬编码
     Jmp,addr,   // jmp汇编指令E9和后面待填充的硬编码
     hello
@@ -43,6 +46,8 @@ public:
     IMAGE_NT_HEADERS* nt_headers = 0; //NT头结构体指针
     IMAGE_OPTIONAL_HEADER32* optional_headers = 0; //可选头结构体指针
     IMAGE_SECTION_HEADER* section_headers = 0; //节表结构体指针
+    int section_count = 0; //节数量
+    char section_name[8]; //注入节名字
     unsigned char *OEP;           // OEP地址
 
     //注入变量
@@ -165,12 +170,25 @@ void File_Control::output_error(const TCHAR* error_message)
 void File_Control::inject(){
 // 计算代码注入偏移
     Blank_Section_Length=section_headers->SizeOfRawData-section_headers->Misc.VirtualSize;
+    section_count = nt_headers->FileHeader.NumberOfSections;
+
+    for (int i = 0; i < section_count; i++){
+    // 计算代码注入偏移
+    if(section_headers[i].SizeOfRawData - section_headers[i].Misc.VirtualSize > Blank_Section_Length && (int)(section_headers[i].Characteristics & 0x20000000) != 0){
+        memset(section_name,0,sizeof(section_name));
+        Blank_Section_Length=section_headers[i].SizeOfRawData-section_headers[i].Misc.VirtualSize;
+        if(debug)
+            printf("可用空白节名：%s，大小：%x\n", section_headers[i].Name, Blank_Section_Length);
+        strcpy(section_name,(char *)section_headers[i].Name);
+    }
+    }
+
     if (Blank_Section_Length<=0)
     {
-        output_error(TEXT("程序可用空间不足"));
+        output_error(TEXT("没有足够的可注入空白节"));
     }
     if (debug)
-        printf("空白节可用大小:%x\n", Blank_Section_Length);
+        printf("注入节：%s\n",section_name);
     if (optional_headers->AddressOfEntryPoint == VirtualCodeStart)
     {
         output_error(TEXT("程序已被修改,无序重复修改"));
@@ -181,9 +199,9 @@ void File_Control::inject(){
     getfunaddr();
     call_msgbox = Msgaddress - 0x400000 - VirtualCodeStart - MESSAGE_BOX_OFFSET-4;
     str_addr=0x400000 + VirtualCodeStart + STR_OFFSET;
-
-    if( optional_headers->DllCharacteristics & 0x40 == 0x40 )                   //关闭aslr
-        optional_headers->DllCharacteristics = optional_headers->DllCharacteristics & 0xff4f;
+    if( (int)(optional_headers->DllCharacteristics & 0x40) == 0x40 ){                   //关闭aslr
+        optional_headers->DllCharacteristics = optional_headers->DllCharacteristics & 0xff0f;
+    }
     optional_headers->AddressOfEntryPoint = VirtualCodeStart;
     memcpy(OEP,ShellCode,ShellcodeLength);
     memcpy(OEP + PUSH_STR_OFFSET,&str_addr,4);
@@ -200,7 +218,7 @@ int main(int argc, char* argv[])
 
     if (debug)
     {
-        file.init("base.exe");
+        file.init("F:\\软件\\WeChat\\WeChat.exe");
     }
     else
     {
